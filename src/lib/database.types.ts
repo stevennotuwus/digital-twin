@@ -1,6 +1,32 @@
 export interface Database {
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          id: string;
+          email: string;
+          full_name: string | null;
+          avatar_url: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          email: string;
+          full_name?: string | null;
+          avatar_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          full_name?: string | null;
+          avatar_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
       devices: {
         Row: {
           id: string;
@@ -10,6 +36,7 @@ export interface Database {
           location: string | null;
           last_seen: string | null;
           metadata: Record<string, any>;
+          user_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -21,6 +48,7 @@ export interface Database {
           location?: string | null;
           last_seen?: string | null;
           metadata?: Record<string, any>;
+          user_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -32,6 +60,7 @@ export interface Database {
           location?: string | null;
           last_seen?: string | null;
           metadata?: Record<string, any>;
+          user_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -98,6 +127,7 @@ export interface Database {
   };
 }
 
+export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type Device = Database['public']['Tables']['devices']['Row'];
 export type SensorReading = Database['public']['Tables']['sensor_readings']['Row'];
 export type DeviceAlert = Database['public']['Tables']['device_alerts']['Row'];

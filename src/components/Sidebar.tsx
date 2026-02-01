@@ -1,4 +1,5 @@
-import { Activity, BarChart3, Home, Settings, AlertTriangle } from 'lucide-react';
+import { Activity, BarChart3, Home, Settings, AlertTriangle, User } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface SidebarProps {
   activeView: string;
@@ -6,12 +7,14 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeView, setActiveView }: SidebarProps) {
+  const { profile } = useAuth();
+
   const menuItems = [
     { id: 'overview', icon: Home, label: 'Overview' },
     { id: 'devices', icon: Activity, label: 'Devices' },
     { id: 'analytics', icon: BarChart3, label: 'Analytics' },
     { id: 'alerts', icon: AlertTriangle, label: 'Alerts' },
-    { id: 'settings', icon: Settings, label: 'Settings' },
+    { id: 'profile', icon: User, label: 'Profile' },
   ];
 
   return (
@@ -49,7 +52,20 @@ export function Sidebar({ activeView, setActiveView }: SidebarProps) {
         })}
       </nav>
 
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
+      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700 space-y-3">
+        <div className="bg-slate-700/50 rounded-lg p-3">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-full flex items-center justify-center flex-shrink-0">
+              <User className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-white truncate">
+                {profile?.full_name || 'User'}
+              </p>
+              <p className="text-xs text-slate-400 truncate">Logged in</p>
+            </div>
+          </div>
+        </div>
         <div className="bg-slate-700/50 rounded-lg p-3">
           <div className="flex items-center justify-between text-sm">
             <span className="text-slate-300">System Status</span>
