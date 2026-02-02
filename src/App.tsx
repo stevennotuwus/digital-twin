@@ -9,7 +9,13 @@ import { UserProfile } from './components/UserProfile';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { Landing } from './pages/Landing';
+import { LineChart } from './components/LineChart';
+import { PerformanceChart } from './components/PerformanceChart';
+import { RealTimeMetric } from './components/RealTimeMetric';
+import { RealtimeDataStream } from './components/RealtimeDataStream';
 import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
 import { supabase } from './lib/supabase';
 import type { Device } from './lib/database.types';
 
@@ -215,57 +221,108 @@ function Dashboard() {
     </div>
   );
 
-  const renderAnalytics = () => (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Analytics</h1>
-        <p className="text-gray-600">Device performance metrics and insights</p>
-      </div>
+  const renderAnalytics = () => {
+    const cpuData = [65, 72, 58, 81, 73, 69, 76, 82, 71, 68, 75, 79, 72, 68, 74];
+    const memoryData = [55, 58, 62, 59, 65, 68, 71, 69, 72, 75, 73, 70, 68, 71, 74];
+    const networkData = [120, 135, 128, 142, 138, 145, 152, 148, 155, 162, 158, 165, 172, 168, 175];
+    const timeLabels = Array.from({ length: 15 }, (_, i) => `${i * 5}min`);
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard
-          title="Avg Response Time"
-          value="45ms"
-          icon={Activity}
-          trend={{ value: '8%', isPositive: true }}
-          color="blue"
-        />
-        <StatsCard
-          title="Data Points"
-          value="12.5K"
-          icon={TrendingUp}
-          trend={{ value: '23%', isPositive: true }}
+    const responseTimeData = [42, 38, 45, 41, 39, 43, 46, 44, 48, 50, 47, 45, 49, 51, 48];
+    const uptimeData = [99.8, 99.7, 99.8, 99.9, 99.8, 99.7, 99.8, 99.9, 99.8, 99.7, 99.8, 99.9, 99.8, 99.7, 99.8];
+    const errorRateData = [0.2, 0.3, 0.15, 0.25, 0.18, 0.22, 0.28, 0.2, 0.25, 0.3, 0.22, 0.18, 0.25, 0.3, 0.2];
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Analytics & Performance</h1>
+          <p className="text-gray-600">Real-time system metrics and historical performance data</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <RealTimeMetric
+            label="CPU Usage"
+            value={cpuData[cpuData.length - 1]}
+            unit="%"
+            status={cpuData[cpuData.length - 1] > 80 ? 'warning' : 'good'}
+            sparkline={cpuData}
+            trend={{ value: 2, isPositive: false }}
+          />
+          <RealTimeMetric
+            label="Memory Usage"
+            value={memoryData[memoryData.length - 1]}
+            unit="%"
+            status={memoryData[memoryData.length - 1] > 80 ? 'warning' : 'good'}
+            sparkline={memoryData}
+            trend={{ value: 3, isPositive: false }}
+          />
+          <RealTimeMetric
+            label="Network I/O"
+            value={networkData[networkData.length - 1]}
+            unit="Mbps"
+            status="good"
+            sparkline={networkData}
+            trend={{ value: 5, isPositive: true }}
+          />
+          <RealTimeMetric
+            label="Error Rate"
+            value={errorRateData[errorRateData.length - 1]}
+            unit="%"
+            status={errorRateData[errorRateData.length - 1] > 0.5 ? 'critical' : 'good'}
+            sparkline={errorRateData}
+            trend={{ value: 2, isPositive: false }}
+          />
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-6">
+          <LineChart
+            title="CPU Usage Trend (Last 75 minutes)"
+            data={cpuData}
+            labels={timeLabels}
+            color="blue"
+          />
+          <LineChart
+            title="Memory Usage Trend (Last 75 minutes)"
+            data={memoryData}
+            labels={timeLabels}
+            color="cyan"
+          />
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-6">
+          <PerformanceChart
+            title="Response Time by Service"
+            data={[45, 32, 38, 42, 28, 51]}
+            labels={['API', 'Database', 'Cache', 'Queue', 'Search', 'Storage']}
+            color="blue"
+            unit="ms"
+          />
+          <PerformanceChart
+            title="Uptime by Region"
+            data={[99.9, 99.8, 99.7, 99.95, 99.85, 99.75]}
+            labels={['US East', 'US West', 'EU', 'Asia', 'AU', 'SA']}
+            color="green"
+            unit="%"
+          />
+        </div>
+
+        <LineChart
+          title="Network Throughput (Last 75 minutes)"
+          data={networkData}
+          labels={timeLabels}
           color="green"
         />
-        <StatsCard
-          title="Uptime"
-          value="99.8%"
-          icon={Server}
-          trend={{ value: '0.2%', isPositive: true }}
-          color="green"
-        />
-        <StatsCard
-          title="Alerts Resolved"
-          value="87%"
-          icon={AlertTriangle}
-          trend={{ value: '5%', isPositive: true }}
-          color="blue"
-        />
       </div>
-
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">System Performance</h2>
-        <p className="text-gray-600">Detailed analytics coming soon...</p>
-      </div>
-    </div>
-  );
+    );
+  };
 
   const renderAlerts = () => (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Alerts & Notifications</h1>
-        <p className="text-gray-600">Monitor system alerts and device warnings</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Alerts & Real-Time Monitoring</h1>
+        <p className="text-gray-600">System alerts, device warnings, and live data streams</p>
       </div>
+
+      <RealtimeDataStream deviceName={selectedDevice?.name || 'Primary Sensor'} />
 
       {warningDevices > 0 || offlineDevices > 0 ? (
         <>
@@ -341,22 +398,38 @@ function Dashboard() {
   );
 }
 
-function App() {
+function AppContent() {
   const [showRegister, setShowRegister] = useState(false);
+  const [showLanding, setShowLanding] = useState(true);
+  const { user } = useAuth();
+
+  if (showLanding && !user) {
+    return (
+      <Landing
+        onGetStarted={() => setShowLanding(false)}
+      />
+    );
+  }
 
   return (
+    <ProtectedRoute
+      fallback={
+        showRegister ? (
+          <Register onSwitchToLogin={() => setShowRegister(false)} />
+        ) : (
+          <Login onSwitchToRegister={() => setShowRegister(true)} />
+        )
+      }
+    >
+      <Dashboard />
+    </ProtectedRoute>
+  );
+}
+
+function App() {
+  return (
     <AuthProvider>
-      <ProtectedRoute
-        fallback={
-          showRegister ? (
-            <Register onSwitchToLogin={() => setShowRegister(false)} />
-          ) : (
-            <Login onSwitchToRegister={() => setShowRegister(true)} />
-          )
-        }
-      >
-        <Dashboard />
-      </ProtectedRoute>
+      <AppContent />
     </AuthProvider>
   );
 }
