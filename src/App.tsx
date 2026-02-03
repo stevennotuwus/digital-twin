@@ -14,6 +14,11 @@ import { LineChart } from './components/LineChart';
 import { PerformanceChart } from './components/PerformanceChart';
 import { RealTimeMetric } from './components/RealTimeMetric';
 import { RealtimeDataStream } from './components/RealtimeDataStream';
+import { RecentReadings } from './components/RecentReadings';
+import { AlertCenter } from './components/AlertCenter';
+import { DeviceHealth } from './components/DeviceHealth';
+import { PerformanceComparison } from './components/PerformanceComparison';
+import { NotificationContainer, useNotifications } from './components/Notification';
 import { AuthProvider } from './contexts/AuthContext';
 import { useAuth } from './contexts/AuthContext';
 import { supabase } from './lib/supabase';
@@ -26,6 +31,7 @@ function Dashboard() {
   const [managementDevice, setManagementDevice] = useState<Device | null | undefined>(undefined);
   const [latestReadings, setLatestReadings] = useState<Record<string, { value: number; unit: string }>>({});
   const [loading, setLoading] = useState(true);
+  const { notifications, addNotification, NotificationContainer: Notif } = useNotifications();
 
   useEffect(() => {
     loadDevices();
@@ -93,7 +99,10 @@ function Dashboard() {
           <p className="text-gray-600">Monitor and manage your IoT device infrastructure in real-time</p>
         </div>
         <button
-          onClick={() => setManagementDevice(null)}
+          onClick={() => {
+            setManagementDevice(null);
+            addNotification('info', 'New Device', 'Device creation modal opened');
+          }}
           className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-lg shadow-blue-500/30"
         >
           <Plus className="w-5 h-5" />
@@ -127,6 +136,13 @@ function Dashboard() {
           color="red"
         />
       </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        <AlertCenter maxItems={6} />
+        <RecentReadings maxItems={6} />
+      </div>
+
+      <DeviceHealth maxItems={6} />
 
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Active Devices</h2>
@@ -311,6 +327,8 @@ function Dashboard() {
           labels={timeLabels}
           color="green"
         />
+
+        <PerformanceComparison timeRange="today" />
       </div>
     );
   };
@@ -391,9 +409,12 @@ function Dashboard() {
           onSave={() => {
             loadDevices();
             setManagementDevice(undefined);
+            addNotification('success', 'Device Saved', 'Device has been successfully saved');
           }}
         />
       )}
+
+      <Notif />
     </div>
   );
 }
